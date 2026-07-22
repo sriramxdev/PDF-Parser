@@ -121,10 +121,63 @@ def parse_pdf_stream(file_bytes: bytes, file_name: str) -> str:
         }, indent=2)
 
 
-# Streamlit UI Header
+# Streamlit UI Header & Credits
 st.markdown("<h1 style='text-align: center;'>📄 PDF Parser</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: gray;'>High-performance PDF scraper & structured JSON extractor</p>", unsafe_allow_html=True)
+st.markdown(
+    """
+    <p style='text-align: center; color: #64748B; font-size: 0.95rem; margin-top: -10px;'>
+        High-performance PDF scraper & structured JSON extractor<br>
+        <span style='font-size: 0.85rem;'>Designed by <b>sriramxdev</b> • 🌐 <a href='https://sriramxdev.me' target='_blank' style='color: #4F46E5; text-decoration: none; font-weight: 600;'>Visit My Website ↗</a></span>
+    </p>
+    """, 
+    unsafe_allow_html=True
+)
 st.divider()
+
+# Grid Layout
+col1, col2 = st.columns([1, 1.2], gap="large")
+
+with col1:
+    st.subheader("Upload Document")
+    uploaded_file = st.file_uploader(
+        "Choose a PDF file", 
+        type=["pdf"], 
+        accept_multiple_files=False
+    )
+    
+    parse_triggered = st.button("Extract & Scrape PDF", type="primary", use_container_width=True)
+
+with col2:
+    st.subheader("Parsed JSON Output")
+    
+    if uploaded_file is not None and (parse_triggered or uploaded_file):
+        with st.spinner("Processing PDF..."):
+            file_bytes = uploaded_file.getvalue()
+            parsed_json = parse_pdf_stream(file_bytes, uploaded_file.name)
+            
+            # Interactive JSON Viewer
+            st.json(parsed_json)
+            
+            # Download Button
+            st.download_button(
+                label="📥 Download JSON",
+                data=parsed_json,
+                file_name=f"{os.path.splitext(uploaded_file.name)[0]}_parsed.json",
+                mime="application/json",
+                use_container_width=True
+            )
+    else:
+        st.info("Upload a PDF file to extract structured metadata and page text.")
+
+# Fixed Bottom Footer
+st.markdown(
+    """
+    <div class="footer">
+        Designed by <b>sriramxdev</b> • <a href="https://sriramxdev.me" target="_blank">Visit My Website ↗</a>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # Grid Layout
 col1, col2 = st.columns([1, 1.2], gap="large")
