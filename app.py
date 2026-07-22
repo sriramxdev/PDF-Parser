@@ -134,7 +134,7 @@ st.markdown(
 )
 st.divider()
 
-# Grid Layout
+# Main Grid Layout
 col1, col2 = st.columns([1, 1.2], gap="large")
 
 with col1:
@@ -142,10 +142,11 @@ with col1:
     uploaded_file = st.file_uploader(
         "Choose a PDF file", 
         type=["pdf"], 
-        accept_multiple_files=False
+        accept_multiple_files=False,
+        key="pdf_uploader_main"
     )
     
-    parse_triggered = st.button("Extract & Scrape PDF", type="primary", use_container_width=True)
+    parse_triggered = st.button("Extract & Scrape PDF", type="primary", use_container_width=True, key="btn_parse_main")
 
 with col2:
     st.subheader("Parsed JSON Output")
@@ -164,52 +165,41 @@ with col2:
                 data=parsed_json,
                 file_name=f"{os.path.splitext(uploaded_file.name)[0]}_parsed.json",
                 mime="application/json",
-                use_container_width=True
+                use_container_width=True,
+                key="btn_download_main"
             )
     else:
         st.info("Upload a PDF file to extract structured metadata and page text.")
 
-# Fixed Bottom Footer
+# Fixed Bottom Footer with CSS
 st.markdown(
     """
+    <style>
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #FFFFFF;
+        color: #64748B;
+        text-align: center;
+        padding: 8px 0;
+        font-size: 0.85rem;
+        border-top: 1px solid #E2E8F0;
+        z-index: 999;
+    }
+    .footer a {
+        color: #4F46E5;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .footer a:hover {
+        text-decoration: underline;
+    }
+    </style>
     <div class="footer">
         Designed by <b>sriramxdev</b> • <a href="https://sriramxdev.me" target="_blank">Visit My Website ↗</a>
     </div>
     """,
     unsafe_allow_html=True
 )
-
-# Grid Layout
-col1, col2 = st.columns([1, 1.2], gap="large")
-
-with col1:
-    st.subheader("Upload Document")
-    uploaded_file = st.file_uploader(
-        "Choose a PDF file", 
-        type=["pdf"], 
-        accept_multiple_files=False
-    )
-    
-    parse_triggered = st.button("Extract & Scrape PDF", type="primary", use_container_width=True)
-
-with col2:
-    st.subheader("Parsed JSON Output")
-    
-    if uploaded_file is not None and (parse_triggered or uploaded_file):
-        with st.spinner("Processing PDF..."):
-            file_bytes = uploaded_file.getvalue()
-            parsed_json = parse_pdf_stream(file_bytes, uploaded_file.name)
-            
-            # Interactive JSON Viewer
-            st.json(parsed_json)
-            
-            # Download Button for the resulting JSON
-            st.download_button(
-                label="📥 Download JSON",
-                data=parsed_json,
-                file_name=f"{os.path.splitext(uploaded_file.name)[0]}_parsed.json",
-                mime="application/json",
-                use_container_width=True
-            )
-    else:
-        st.info("Upload a PDF file to extract structured metadata and page text.")
